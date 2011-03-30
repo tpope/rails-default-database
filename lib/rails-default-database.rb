@@ -9,6 +9,7 @@ Rails::Application::Configuration.class_eval do
       lambda do |env|
         {
           'adapter' => 'postgresql',
+          'min_messages' => 'warning',
           'database' => "#{name}_#{env}"
         }
       end
