@@ -4,10 +4,10 @@ Rails::Application::Configuration.class_eval do
     database_configuration_without_default
   rescue Errno::ENOENT
     name = File.basename(root)
-    begin
+    generator = begin
       require 'pg'
-      Hash.new do |h,env|
-        h[env] = {
+      lambda do |env|
+        {
           'adapter' => 'postgresql',
           'database' => "#{name}_#{env}"
         }
@@ -15,8 +15,8 @@ Rails::Application::Configuration.class_eval do
     rescue LoadError
       begin
         require 'mysql'
-        Hash.new do |h,env|
-          h[env] = {
+        lambda do |env|
+          {
             'adapter' => 'mysql',
             'username' => 'root',
             'database' => "#{name}_#{env}"
@@ -24,13 +24,17 @@ Rails::Application::Configuration.class_eval do
         end
       rescue LoadError
         require 'sqlite3'
-        Hash.new do |h,env|
-          h[env] = {
+        lambda do |env|
+          {
             'adapter' => 'sqlite3',
             'database' => "db/#{env}.sqlite3"
           }
         end
       end
+    end
+
+    %w(development test production).inject({}) do |h, env|
+      h.update(env => generator.call(env))
     end
   end
 
