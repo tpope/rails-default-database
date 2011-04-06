@@ -1,8 +1,12 @@
 Rails::Application::Configuration.class_eval do
 
   def database_configuration_with_default
-    database_configuration_without_default
-  rescue Errno::ENOENT
+    config_file = database_configuration_without_default rescue {}
+    default_config.merge(config_file)
+  end
+
+private
+  def default_config
     name = File.basename(root)
     generator = begin
       require 'pg'
