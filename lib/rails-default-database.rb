@@ -34,12 +34,23 @@ Rails::Application::Configuration.class_eval do
           }
         end
       rescue LoadError
-        require 'sqlite3'
-        lambda do |env|
-          {
-            'adapter' => 'sqlite3',
-            'database' => "db/#{env}.sqlite3"
-          }
+        begin
+          require 'mysql2'
+          lambda do |env|
+            {
+              'adapter' => 'mysql2',
+              'username' => 'root',
+              'database' => "#{name}_#{env}"
+            }
+          end
+        rescue LoadError
+          require 'sqlite3'
+          lambda do |env|
+            {
+              'adapter' => 'sqlite3',
+              'database' => "db/#{env}.sqlite3"
+            }
+          end
         end
       end
     end
