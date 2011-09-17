@@ -8,3 +8,8 @@ Gemfile) will be automatically configured with Rails defaults:
     gem 'rails-default-database'
 
 You can still override the defaults by creating `config/database.yml`.
+
+License
+-------
+
+Copyright (c) Tim Pope.  MIT License.
