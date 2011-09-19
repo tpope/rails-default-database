@@ -1,11 +1,11 @@
 Rails::Application::Configuration.class_eval do
 
   def database_configuration_with_default
-    config_file = begin
-      database_configuration_without_default
-    rescue Errno::ENOENT
-      {}
-    end
+    config_file =
+      begin
+        database_configuration_without_default
+      rescue Errno::ENOENT
+      end || {}
 
     default_config.merge(config_file)
   end
