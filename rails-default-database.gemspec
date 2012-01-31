@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
     "README.markdown",
     "MIT-LICENSE",
     "lib/rails-default-database.rb",
+    "lib/rails-default-database.rake",
   ]
   s.add_runtime_dependency("railties")
 end
