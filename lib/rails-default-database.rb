@@ -7,12 +7,10 @@ Rails::Application::Configuration.class_eval do
       rescue Errno::ENOENT
       end || {}
 
-    default_config.merge(config_file)
+    default_database_configuration.merge(config_file)
   end
 
-  private
-
-  def default_config
+  def default_database_configuration
     name = File.basename(root)
     generator = begin
       require 'pg'
@@ -61,4 +59,10 @@ Rails::Application::Configuration.class_eval do
   end
 
   alias_method_chain :database_configuration, :default
+end
+
+class RailsDefaultDatabaseRailtie < Rails::Railtie
+  rake_tasks do
+    load 'rails-default-database.rake'
+  end
 end
