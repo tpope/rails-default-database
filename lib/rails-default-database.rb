@@ -4,7 +4,7 @@ Rails::Application::Configuration.class_eval do
     config_file =
       begin
         database_configuration_without_default
-      rescue Errno::ENOENT
+      rescue Errno::ENOENT, RuntimeError
       end || {}
 
     default_database_configuration.merge(config_file)
