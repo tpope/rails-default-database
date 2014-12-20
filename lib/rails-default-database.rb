@@ -12,49 +12,45 @@ Rails::Application::Configuration.class_eval do
 
   def default_database_configuration
     name = File.basename(root)
-    generator = begin
-      require 'pg'
-      lambda do |env|
-        {
-          'adapter' => 'postgresql',
-          'min_messages' => 'warning',
-          'database' => "#{name}_#{env}"
-        }
-      end
-    rescue LoadError
+    driver = %w(pg mysql mysql2 sqlite3).detect do |a|
       begin
-        require 'mysql'
-        lambda do |env|
-          {
-            'adapter' => 'mysql',
-            'username' => 'root',
-            'database' => "#{name}_#{env}"
-          }
-        end
+        require a
+        true
       rescue LoadError
-        begin
-          require 'mysql2'
-          lambda do |env|
-            {
-              'adapter' => 'mysql2',
-              'username' => 'root',
-              'database' => "#{name}_#{env}"
-            }
-          end
-        rescue LoadError
-          require 'sqlite3'
-          lambda do |env|
-            {
-              'adapter' => 'sqlite3',
-              'database' => "db/#{env}.sqlite3"
-            }
-          end
-        end
       end
     end
+    defaults =
+      case driver
+      when 'pg'
+        {
+          'adapter' => 'postgresql',
+          'min_messages' => 'warning'
+        }
+      when 'mysql'
+        {
+          'adapter' => 'mysql',
+          'username' => 'root'
+        }
+      when 'mysql2'
+        {
+          'adapter' => 'mysql2',
+          'username' => 'root'
+        }
+      when 'sqlite3'
+        {
+          'adapter' => 'sqlite3',
+          'database' => 'db/%s.sqlite3'
+        }
+      else
+        {}
+      end
+    defaults['database'] ||= "#{name}_%s"
 
     %w(development test production).inject({}) do |h, env|
-      h.update(env => generator.call(env))
+      h[env] = defaults.merge(
+        'database' => defaults['database'].gsub('%s', env)
+      )
+      h
     end
   end
 
