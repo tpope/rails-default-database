@@ -26,23 +26,15 @@ Rails::Application::Configuration.class_eval do
           'adapter' => 'postgresql',
           'min_messages' => 'warning'
         }
-      when 'mysql'
-        {
-          'adapter' => 'mysql',
-          'username' => 'root'
-        }
-      when 'mysql2'
-        {
-          'adapter' => 'mysql2',
-          'username' => 'root'
-        }
       when 'sqlite3'
         {
           'adapter' => 'sqlite3',
           'database' => 'db/%s.sqlite3'
         }
-      else
+      when nil
         {}
+      else
+        {'adapter' => driver}
       end
     defaults['database'] ||= "#{name}_%s"
 
