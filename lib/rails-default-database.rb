@@ -57,7 +57,10 @@ Rails::Application::Configuration.class_eval do
     end
   end
 
-  alias_method_chain :database_configuration, :default
+  unless method_defined?(:database_configuration_without_default)
+    alias database_configuration_without_default database_configuration
+    alias database_configuration database_configuration_with_default
+  end
 end
 
 class RailsDefaultDatabaseRailtie < Rails::Railtie
