@@ -15,16 +15,20 @@ Rails::Application::Configuration.class_eval do
       end || {}
 
     if url = ENV['DATABASE_URL'].presence
-      config['test'] ||= {}
-      config['test']['url'] ||= ENV['TEST_DATABASE_URL'] ||
-        url.sub(/(?:_(?:#{environments_for_database_configuration.join('|')}))?(?=\?|$)/, "_test")
       (environments_for_database_configuration | config.keys).each do |k|
-        config[k] ||= {}
-        config[k]['url'] ||= url
+        config[k] = {'url' => url.gsub('%s', k)}
+        if k == 'test'
+          config[k]['url'] =
+            config[k]['url'].sub(/(?:_(?:#{environments_for_database_configuration.join('|')}))?(?=\?|$)/, "_test")
+        end
       end
       config
     else
       default_database_configuration.merge(config)
+    end.tap do |c|
+      if ENV['TEST_DATABASE_URL'].present?
+        c['test'] = {'url' => ENV['TEST_DATABASE_URL']}
+      end
     end
   end
 
