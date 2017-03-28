@@ -19,7 +19,7 @@ Rails::Application::Configuration.class_eval do
         config[k] = {'url' => url.gsub('%s', k)}
         if k == 'test'
           config[k]['url'] =
-            config[k]['url'].sub(/(?:_(?:#{environments_for_database_configuration.join('|')}))?(?=\?|$)/, "_test")
+            config[k]['url'].sub(/(?:_(?:#{environments_for_database_configuration.join('|')})(?:\d*|%i))?(?=\?|$)/, "_test")
         end
       end
       config
@@ -28,6 +28,11 @@ Rails::Application::Configuration.class_eval do
     end.tap do |c|
       if ENV['TEST_DATABASE_URL'].present?
         c['test'] = {'url' => ENV['TEST_DATABASE_URL']}
+      end
+      %w(url database).each do |key|
+        if value = c['test'] && c['test'][key]
+          c['test'][key] = value.sub(/%i/, ENV['TEST_ENV_NUMBER'].to_s)
+        end
       end
     end
   end
@@ -62,7 +67,7 @@ Rails::Application::Configuration.class_eval do
 
     environments_for_database_configuration.inject({}) do |h, env|
       h[env] = defaults.merge(
-        'database' => defaults['database'].gsub('%s', env)
+        'database' => defaults['database'].gsub('%s', "#{env}#{'%i' if env == 'test'}")
       )
       h
     end
