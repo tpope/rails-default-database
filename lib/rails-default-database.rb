@@ -11,7 +11,7 @@ Rails::Application::Configuration.class_eval do
       config['test'] ||= {}
       config['test']['url'] ||= ENV['TEST_DATABASE_URL'] ||
         url.sub(/(?:_development|_test|_production)?(?=\?|$)/, "_test")
-      config[if Rails.env.test? then 'development' else Rails.env end] ||= {}
+      config[if Rails.env.test? then 'development' else Rails.env.to_s end] ||= {}
       config.keys.each do |k|
         config[k]['url'] ||= url
       end
