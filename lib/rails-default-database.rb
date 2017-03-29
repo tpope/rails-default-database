@@ -1,5 +1,12 @@
 Rails::Application::Configuration.class_eval do
 
+  def environments_for_database_configuration
+    ['development', 'test', 'production'] |
+      root.join('config', 'environments').children.map do |e|
+        e.basename('.rb').to_s if e.extname == '.rb'
+      end.compact.sort
+  end
+
   def database_configuration_with_default
     config =
       begin
@@ -10,9 +17,9 @@ Rails::Application::Configuration.class_eval do
     if url = ENV['DATABASE_URL'].presence
       config['test'] ||= {}
       config['test']['url'] ||= ENV['TEST_DATABASE_URL'] ||
-        url.sub(/(?:_development|_test|_production)?(?=\?|$)/, "_test")
-      config[if Rails.env.test? then 'development' else Rails.env.to_s end] ||= {}
-      config.keys.each do |k|
+        url.sub(/(?:_(?:#{environments_for_database_configuration.join('|')}))?(?=\?|$)/, "_test")
+      (environments_for_database_configuration | config.keys).each do |k|
+        config[k] ||= {}
         config[k]['url'] ||= url
       end
       config
@@ -49,7 +56,7 @@ Rails::Application::Configuration.class_eval do
       end
     defaults['database'] ||= "#{name}_%s"
 
-    %w(development test production).inject({}) do |h, env|
+    environments_for_database_configuration.inject({}) do |h, env|
       h[env] = defaults.merge(
         'database' => defaults['database'].gsub('%s', env)
       )
