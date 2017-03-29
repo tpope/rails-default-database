@@ -39,7 +39,7 @@ Rails::Application::Configuration.class_eval do
 
   def default_database_configuration
     name = File.basename(root).gsub(/[^[:alnum:]]+/, '_')
-    driver = %w(pg mysql mysql2 sqlite3).detect do |a|
+    driver = %w(pg mysql2 mysql sqlite3).detect do |a|
       begin
         require a
         true
