@@ -11,6 +11,11 @@ You can still override the defaults by creating `config/database.yml`.
 Use `rake db:config` to create `config/database.yml` with the defaults
 that would have been assumed.
 
+The default database name is based on the name of the root directory of your
+application.  This can be overridden by setting
+`config.database_name = 'foo_%s'` in `config/application.rb`, with `%s` being
+a placeholder for the current environment name.
+
 As in standard Rails, the `DATABASE_URL` environment variable takes
 precedence when defined.  However, in the test environment, Rails Default
 Database will append `_test` to the database name (after stripping an optional

@@ -37,8 +37,12 @@ Rails::Application::Configuration.class_eval do
     end
   end
 
+  attr_writer :database_name
+  def database_name
+    @database_name || File.basename(root).gsub(/[^[:alnum:]]+/, '_') + '_%s'
+  end
+
   def default_database_configuration
-    name = File.basename(root).gsub(/[^[:alnum:]]+/, '_')
     driver = %w(pg mysql2 mysql sqlite3).detect do |a|
       begin
         require a
@@ -63,11 +67,14 @@ Rails::Application::Configuration.class_eval do
       else
         {'adapter' => driver}
       end
-    defaults['database'] ||= "#{name}_%s"
+    defaults['database'] ||= database_name
 
     environments_for_database_configuration.inject({}) do |h, env|
+      database = defaults['database']
+      database += '_%s' if env == 'test' && database !~ /%s/
+      database = database.gsub('%s', "#{env}#{'%i' if env == 'test'}")
       h[env] = defaults.merge(
-        'database' => defaults['database'].gsub('%s', "#{env}#{'%i' if env == 'test'}")
+        'database' => database
       )
       h
     end
