@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name                = "rails-default-database"
-  s.version             = "1.1.1"
+  s.version             = "1.1.2"
 
   s.summary             = "Make database.yml optional in Rails"
   s.description         = "Provides a default database configuration for Rails applications that lack one"
