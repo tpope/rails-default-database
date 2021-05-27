@@ -17,7 +17,7 @@ Rails::Application::Configuration.class_eval do
     if url = ENV['DATABASE_URL'].presence
       (environments_for_database_configuration | config.keys).each do |k|
         config[k] = {'url' => url.gsub('%s', k)}
-        if k == 'test' && ENV['TEST_DATABASE_URL'] != 'default'
+        if k == 'test' && ENV['TEST_DATABASE_URL'] != 'default' && ENV['CI'] != 'true'
           config[k]['url'] =
             config[k]['url'].sub(/(?:_(?:#{environments_for_database_configuration.join('|')})(?:\d*|%i))?(?=\?|$)/, "_test")
         end
